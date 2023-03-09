@@ -83,6 +83,12 @@ public:
     HumanSkeleton();
 };
 
+class PINOCCHIO_API SMPLSkeleton : public Skeleton
+{
+public:
+    SMPLSkeleton();
+};
+
 // class PINOCCHIO_API KinectSkeleton : public Skeleton
 // {
 // public:

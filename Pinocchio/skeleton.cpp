@@ -187,6 +187,62 @@ HumanSkeleton::HumanSkeleton()
     setFat("head");
 }
 
+
+SMPLSkeleton::SMPLSkeleton()
+{
+    //order of makeJoint calls is very important
+    makeJoint("hips", Pinocchio::Vector3(0., 0., 0.));                          //0
+    makeJoint("spine", Pinocchio::Vector3(0., 0.138, 0.), "hips");              //1     2/5*(spine3 - hips)
+    makeJoint("spine2", Pinocchio::Vector3(0., 0.276, 0.), "spine");            //1     4/5*(spine3 - hips)
+    makeJoint("spine3", Pinocchio::Vector3(0., 0.345, 0.), "spine2");           //1     3/5*(shoulders - hips)
+    makeJoint("shoulders", Pinocchio::Vector3(0., 0.575, 0.), "spine3");        //2
+    makeJoint("head", Pinocchio::Vector3(0., 0.7, 0.), "shoulders");            //3
+
+    makeJoint("lcollar", Pinocchio::Vector3(-0.1, 0.4225, 0.), "spine3");       //4     1/2*(lshoulder - spine3)
+    makeJoint("lshoulder", Pinocchio::Vector3(-0.2, 0.5, 0.), "lcollar");       //4
+    makeJoint("lelbow", Pinocchio::Vector3(-0.4, 0.25, 0.075), "lshoulder");       //5
+    makeJoint("lwrist", Pinocchio::Vector3(-0.6, 0.0, 0.15), "lelbow");          //6
+    makeJoint("lhand", Pinocchio::Vector3(-0.6, -0.025, 0.15), "lwrist");          //7
+
+    makeJoint("rcollar", Pinocchio::Vector3(0.1, 0.4225, 0.), "spine3");       //4     1/2*(lshoulder - spine3)
+    makeJoint("rshoulder", Pinocchio::Vector3(0.2, 0.5, 0.), "rcollar");       //8
+    makeJoint("relbow", Pinocchio::Vector3(0.4, 0.25, 0.075), "rshoulder");       //9
+    makeJoint("rwrist", Pinocchio::Vector3(0.6, 0.0, 0.15), "relbow");          //10
+    makeJoint("rhand", Pinocchio::Vector3(0.6, -0.025, 0.15), "rwrist");          //11
+
+    makeJoint("lthigh", Pinocchio::Vector3(-0.1, 0., 0.), "hips");            //12
+    makeJoint("lknee", Pinocchio::Vector3(-0.15, -0.35, 0.), "lthigh");          //13
+    makeJoint("lankle", Pinocchio::Vector3(-0.15, -0.8, 0.), "lknee");           //14
+    makeJoint("lfoot", Pinocchio::Vector3(-0.15, -0.8, 0.1), "lankle");          //15
+
+    makeJoint("rthigh", Pinocchio::Vector3(0.1, 0., 0.), "hips");            //16
+    makeJoint("rknee", Pinocchio::Vector3(0.15, -0.35, 0.), "rthigh");          //17
+    makeJoint("rankle", Pinocchio::Vector3(0.15, -0.8, 0.), "rknee");           //18
+    makeJoint("rfoot", Pinocchio::Vector3(0.15, -0.8, 0.1), "rankle");          //19
+
+    //symmetry
+    makeSymmetric("lcollar", "rcollar");
+    makeSymmetric("lthigh", "rthigh");
+    makeSymmetric("lknee", "rknee");
+    makeSymmetric("lankle", "rankle");
+    makeSymmetric("lfoot", "rfoot");
+
+    makeSymmetric("lshoulder", "rshoulder");
+    makeSymmetric("lelbow", "relbow");
+    makeSymmetric("lwrist", "rwrist");
+    makeSymmetric("lhand", "rhand");
+
+    initCompressed();
+
+    setFoot("lfoot");
+    setFoot("rfoot");
+
+    setFat("hips");
+    setFat("spine3");
+    setFat("head");
+}
+
+
 QuadSkeleton::QuadSkeleton()
 {
     //order of makeJoint calls is very important

@@ -57,7 +57,7 @@ Mesh::Mesh(const string &file)
     else if(string(file.end() - 4, file.end()) == string(".stl"))
         readStl(obj); 
     else if(string(file.end() - 4, file.end()) == string(".fbx"))
-        readFbx(file, "../Project/data/yoda/textures/BAJA_YODA_BABY_%s_BaseColor.png");   
+        readFbx(file, "./data/Ch14_1001_Diffuse.png");
         //readFbx(file, "../Project/data/yoda/textures/%s");    
     else {
         Debugging::out() << "I don't know what kind of file it is" << endl;
@@ -66,7 +66,7 @@ Mesh::Mesh(const string &file)
     
     //reconstruct the rest of the information
     int verts = vertices.size();
-    
+
     if(verts == 0)
         return;
     
@@ -76,9 +76,10 @@ Mesh::Mesh(const string &file)
             OUT;
         }
     }
-    
     fixDupFaces();
     computeTopology();
+
+    writeObj("./data/temp.obj");
     if(integrityCheck())
         Debugging::out() << "Successfully read " << file << ": " << vertices.size() << " vertices, " << edges.size() << " edges" << endl;
     else
@@ -113,6 +114,12 @@ void Mesh::computeTopology() {
             edges[twin].twin = i;
             edges[i].twin = twin;
         }
+        //if (twin == -1 || i == -1) {
+        //    Debugging::out() << "111" << endl;
+        //}
+        //if (i >= 99 && i <= 120) {
+        //    Debugging::out() << i << " = " << edges[i].twin << endl;
+        //}
     }
 }
 
@@ -686,11 +693,17 @@ bool Mesh::integrityCheck() const
         CHECK(vertices[i].edge >= 0);
         CHECK(vertices[i].edge < es);
     }
-    
+    Debugging::out() << es << endl;
+
     for(i = 0; i < es; ++i) {
+        //Debugging::out() << i << edges[i].twin << endl;
+        //if (i = 99) {
+        //    Debugging::out() << i << edges[i].twin << endl;
+        //}
         CHECK(edges[i].vertex >= 0 && edges[i].vertex < vs);
         CHECK(edges[i].prev >= 0 && edges[i].prev < es);
-        CHECK(edges[i].twin >= 0 && edges[i].twin < es);
+        CHECK(edges[i].twin >= 0);
+        CHECK(edges[i].twin < es);
     }
     
     //check basic edge and vertex relationships

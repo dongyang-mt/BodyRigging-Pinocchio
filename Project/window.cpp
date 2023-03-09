@@ -32,9 +32,10 @@ THE SOFTWARE.
 
 #define COLOR_SEED 121
 
-static HumanSkeleton human;
+static SMPLSkeleton human;
 
 MyWindow *win = NULL;
+Mesh *g_input_mesh = NULL;
 
 void idle(void *s)
 {
@@ -42,8 +43,10 @@ void idle(void *s)
         win->redraw();
 }
 
-MyWindow::MyWindow() : Fl_Gl_Window(1024, 768, "Pinocchio"), flatShading(false), floor(true), skeleton(false)
+MyWindow::MyWindow(string input_meshpath) : Fl_Gl_Window(1024, 768, "Pinocchio"), flatShading(false), floor(true), skeleton(true)
 {
+    g_input_mesh = new Mesh(input_meshpath);
+
     size_range(20, 20, 5000, 5000);
     end();
 
@@ -219,11 +222,13 @@ void MyWindow::draw() {
     if(floor)
         drawFloor();
 
-    vector<const Mesh *> ms(meshes.size());
-    for(i = 0; i < (int)meshes.size(); ++i) {
+    vector<const Mesh*> ms(meshes.size());
+    for (i = 0; i < (int)meshes.size(); ++i) {
         meshes[i]->motion->setFrameIdx();
         ms[i] = &(meshes[i]->getMesh());
     }
+
+    drawMesh(*g_input_mesh, flatShading);
 
     //shadows
     // if(floor) {
@@ -279,11 +284,22 @@ void MyWindow::draw() {
             const vector<int> &prev = human.fPrev();
 
             glBegin(GL_LINES);
-            for(int j = 1; j < (int) prev.size(); ++j) {
+            for (int j = 1; j < (int)prev.size(); ++j) {
                 int k = prev[j];
                 getColor();
                 glVertex3d(avatar[j][0], avatar[j][1], avatar[j][2]);
                 glVertex3d(avatar[k][0], avatar[k][1], avatar[k][2]);
+            }
+            glEnd();
+
+            srand(COLOR_SEED);
+            vector<Pinocchio::Vector3> input_skeleton = human.fGraph().verts;
+            glBegin(GL_LINES);
+            for (int j = 1; j < (int)prev.size(); ++j) {
+                int k = prev[j];
+                getColor();
+                glVertex3d(input_skeleton[j][0], input_skeleton[j][1], input_skeleton[j][2]);
+                glVertex3d(input_skeleton[k][0], input_skeleton[k][1], input_skeleton[k][2]);
             }
             glEnd();
 

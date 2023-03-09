@@ -43,7 +43,7 @@ struct LineSegment
 class MyWindow : public Fl_Gl_Window
 {
 public:
-    MyWindow();
+    MyWindow(string input_meshpath="");
 
     virtual ~MyWindow() {}
     virtual void draw();
