@@ -5,6 +5,7 @@
 #include "device.h"
 #include "../Pinocchio/skeleton.h"
 #include "../Pinocchio/pinocchioApi.h"
+#include "bvh11.hpp"
 
 #define SKELETON_RENDER 1
 #define SKELETON_CACHE 0
@@ -48,6 +49,24 @@ int main(int argc, char** argv) {
     const string motionPath = argv[3];
     const string rigged = argv[4];
     const string animation = argv[5];
+
+    const std::string bvh_file_path = "../bvh/resources/131_03.bvh";
+    // const std::string bvh_file_path = "./data/NBS-dance.bvh";
+ 
+    // Import data from a BVH file
+    bvh11::BvhObject bvh(bvh_file_path);
+    // Display basic info
+    std::cout << "#Channels       : " << bvh.channels().size() << std::endl;
+    std::cout << "#Frames         : " << bvh.frames() << std::endl;
+    std::cout << "Frame time      : " << bvh.frame_time() << std::endl;
+    std::cout << "Joint hierarchy : " << std::endl;
+    bvh.PrintJointHierarchy();
+
+    // Edit the motion data (here, the number of frames is reduced into the half)
+    bvh.ResizeFrames(bvh.frames() / 2);
+
+    // Export data to a BVH file
+    bvh.WriteBvhFile("./dance.bvh");
 
     bool SKELETON_RIGGED = false;
     if (rigged == "rigged") {
