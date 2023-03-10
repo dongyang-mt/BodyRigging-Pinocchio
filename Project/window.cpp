@@ -32,7 +32,7 @@ THE SOFTWARE.
 
 #define COLOR_SEED 121
 
-static SMPLSkeleton human;
+static HumanSkeleton human;
 
 MyWindow *win = NULL;
 Mesh *g_input_mesh = NULL;
@@ -254,6 +254,11 @@ void MyWindow::draw() {
     static GLfloat colrb[4] = {1.f, .9f, .75f, 1.0f };
     glMaterialfv( GL_FRONT, GL_AMBIENT_AND_DIFFUSE, colr);
     glMaterialfv( GL_BACK, GL_AMBIENT_AND_DIFFUSE, colrb);
+
+    //draw original meshes
+    for (i = 0; i < (int)meshes.size(); ++i) {
+        drawMesh(meshes[i]->origMesh, flatShading);
+    }
 
     //draw meshes
     for(i = 0; i < (int)meshes.size(); ++i) {

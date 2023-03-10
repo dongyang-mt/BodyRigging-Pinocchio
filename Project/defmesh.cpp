@@ -87,7 +87,13 @@ void DeformableMesh::updateMesh() const {
         Eigen::Vector3f updatedPos(0, 0, 0);
 
         if (!rigged) {
-            Vector<double, -1> weights = attachment.getWeights(i);
+            Vector<double, -1> weights;
+            if (flagNoAttachment) {
+                weights = inWeights[i];
+            }
+            else {
+                Vector<double, -1> weights = attachment.getWeights(i);
+            }
             for (int j = 0; j < weights.size(); j++) {
                 updatedPos += weights[j] * (transforms.find(j + 1)->second * transformToEigen(origMesh.vertices[i].pos));
             }

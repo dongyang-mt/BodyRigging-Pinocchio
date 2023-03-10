@@ -20,6 +20,9 @@ public:
     DeformableMesh(const Mesh inMesh, const Skeleton& inOrigSkel, const vector<Pinocchio::Vector3>& inMatch,
         const Attachment& inAttachment, Motion* inMotion = NULL)
         : origSkel(inOrigSkel), match(inMatch), attachment(inAttachment), origMesh(inMesh), motion(inMotion) {};
+    DeformableMesh(const Mesh inMesh, const Skeleton& inOrigSkel, const vector<Pinocchio::Vector3>& inMatch,
+        const vector<Vector<double, -1> > &weights, Motion* inMotion = NULL, bool flagNoAttachment=true)
+        : origSkel(inOrigSkel), match(inMatch), inWeights(weights), origMesh(inMesh), motion(inMotion), flagNoAttachment(flagNoAttachment) {};
 
     DeformableMesh(const Mesh inMesh, const Skeleton &inOrigSkel, Motion *inMotion = NULL): origSkel(inOrigSkel), origMesh(inMesh), motion(inMotion) {
         for (int g = 0; g < inOrigSkel.joints.size(); g++) {
@@ -56,6 +59,9 @@ public:
     mutable Mesh origMesh;
     bool rigged = false;
     Motion* motion;
+    bool flagNoAttachment = false;
+    vector<Vector<double, -1> > inWeights;
+
 private:
     map<int, Eigen::Transform<float, 3, Eigen::Affine>> computeTransforms() const;
     void updateMesh() const;
