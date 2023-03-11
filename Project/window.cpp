@@ -228,7 +228,7 @@ void MyWindow::draw() {
         ms[i] = &(meshes[i]->getMesh());
     }
 
-    drawMesh(*g_input_mesh, flatShading);
+    //drawMesh(*g_input_mesh, flatShading);
 
     //shadows
     // if(floor) {
@@ -256,9 +256,9 @@ void MyWindow::draw() {
     glMaterialfv( GL_BACK, GL_AMBIENT_AND_DIFFUSE, colrb);
 
     //draw original meshes
-    for (i = 0; i < (int)meshes.size(); ++i) {
-        drawMesh(meshes[i]->origMesh, flatShading);
-    }
+    //for (i = 0; i < (int)meshes.size(); ++i) {
+    //    drawMesh(meshes[i]->origMesh, flatShading);
+    //}
 
     //draw meshes
     for(i = 0; i < (int)meshes.size(); ++i) {
@@ -297,16 +297,16 @@ void MyWindow::draw() {
             }
             glEnd();
 
-            srand(COLOR_SEED);
-            vector<Pinocchio::Vector3> input_skeleton = human.fGraph().verts;
-            glBegin(GL_LINES);
-            for (int j = 1; j < (int)prev.size(); ++j) {
-                int k = prev[j];
-                getColor();
-                glVertex3d(input_skeleton[j][0], input_skeleton[j][1], input_skeleton[j][2]);
-                glVertex3d(input_skeleton[k][0], input_skeleton[k][1], input_skeleton[k][2]);
-            }
-            glEnd();
+            //srand(COLOR_SEED);
+            //vector<Pinocchio::Vector3> input_skeleton = human.fGraph().verts;
+            //glBegin(GL_LINES);
+            //for (int j = 1; j < (int)prev.size(); ++j) {
+            //    int k = prev[j];
+            //    getColor();
+            //    glVertex3d(input_skeleton[j][0], input_skeleton[j][1], input_skeleton[j][2]);
+            //    glVertex3d(input_skeleton[k][0], input_skeleton[k][1], input_skeleton[k][2]);
+            //}
+            //glEnd();
 
             srand(COLOR_SEED);
             vector<Pinocchio::Vector3> original = meshes[i]->getSkeletonTracked();
