@@ -44,6 +44,7 @@ public:
     void computeBasePose();
 
     vector<Pinocchio::Vector3> getSkeletonAvatar() const;
+    vector<Pinocchio::Vector3> getSkeletonRiggedOutEmbedding() const { return match; };
     vector<Pinocchio::Vector3> getSkeletonTracked();
     vector<Eigen::Quaternionf> getBasePose() const { return pose; };
     const Skeleton &getOrigSkel() const { return origSkel; }

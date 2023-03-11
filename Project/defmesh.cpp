@@ -64,6 +64,7 @@ map<int, Eigen::Transform<float, 3, Eigen::Affine>> DeformableMesh::computeTrans
 
         Eigen::Vector3f directionAvatar = getDirection(rot);
 
+        // 两个joint之间的固定旋转分量
         auto rotation = Eigen::Quaternionf::FromTwoVectors(directionPose, directionAvatar);
         Eigen::Transform<float, 3, Eigen::Affine> transform = translForward * rotation * translBack;
         if (transforms.find(rot.joint1) != transforms.end()) {

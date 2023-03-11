@@ -92,8 +92,23 @@ void Motion::readRawFile(istream & stream) {
         this->rotations.push_back(rotations);
         this->hierarchicalRotations.push_back(hierarchicalRotations);
     }
+    Pinocchio::Vector4 zero_rotation = {0,0,0,1};
+
+    for (int i = 0; i < this->rotations.size(); i++) {
+        for (int g = 0; g < size; g++) {
+            //this->rotations[i][g].rotation = zero_rotation;
+            if (g == 9) {
+                double roll = i * 50 * M_PI / rotations.size();
+                Eigen::AngleAxisd rotation_vector(roll, Eigen::Vector3d::UnitZ());
+                Eigen::Quaterniond q(rotation_vector);
+                Pinocchio::Vector4 bone_rotation = {q.x(), q.y(), q.z(), q.w()};
+                this->rotations[i][g].rotation = bone_rotation;
+            }
+        }
+    }
 
     // translate and scale relative to avatar skeleton
+    // TODO: need to check translation
     Pinocchio::Vector3 translation = Pinocchio::Vector3(0.492356, 0.762127, 0.476605) - positions[0][0];
     double scale = 0.235319 / (positions[0][2] - positions[0][0]).length();
     Transform<> trans(scale, translation);

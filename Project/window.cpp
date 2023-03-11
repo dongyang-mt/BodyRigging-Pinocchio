@@ -35,7 +35,8 @@ THE SOFTWARE.
 static HumanSkeleton human;
 
 MyWindow *win = NULL;
-Mesh *g_input_mesh = NULL;
+Mesh* g_input_mesh = NULL;
+Mesh* g_input_mesh_normalized = NULL;
 
 void idle(void *s)
 {
@@ -46,6 +47,8 @@ void idle(void *s)
 MyWindow::MyWindow(string input_meshpath) : Fl_Gl_Window(1024, 768, "Pinocchio"), flatShading(false), floor(true), skeleton(true)
 {
     g_input_mesh = new Mesh(input_meshpath);
+    g_input_mesh_normalized = new Mesh(input_meshpath);
+    g_input_mesh_normalized->normalizeBoundingBox();
 
     size_range(20, 20, 5000, 5000);
     end();
@@ -228,8 +231,6 @@ void MyWindow::draw() {
         ms[i] = &(meshes[i]->getMesh());
     }
 
-    //drawMesh(*g_input_mesh, flatShading);
-
     //shadows
     // if(floor) {
     //     Vector3 lightRay = transform.getRot().inverse() * Vector3(1, 2, 2);
@@ -265,6 +266,12 @@ void MyWindow::draw() {
         drawMesh(*(ms[i]), flatShading);
     }
 
+    // 输入的静态mesh，非常大
+    drawMesh(*g_input_mesh, flatShading);
+
+    // 输入归一化的静态mesh，匹配RiggedOutEmbedding
+    drawMesh(*g_input_mesh_normalized, flatShading);
+
     //draw lines
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_LIGHTING);
@@ -288,6 +295,7 @@ void MyWindow::draw() {
 
             const vector<int> &prev = human.fPrev();
 
+            // 形变后的skeleton，和形变后的mesh完全匹配
             glBegin(GL_LINES);
             for (int j = 1; j < (int)prev.size(); ++j) {
                 int k = prev[j];
@@ -297,17 +305,19 @@ void MyWindow::draw() {
             }
             glEnd();
 
-            //srand(COLOR_SEED);
-            //vector<Pinocchio::Vector3> input_skeleton = human.fGraph().verts;
-            //glBegin(GL_LINES);
-            //for (int j = 1; j < (int)prev.size(); ++j) {
-            //    int k = prev[j];
-            //    getColor();
-            //    glVertex3d(input_skeleton[j][0], input_skeleton[j][1], input_skeleton[j][2]);
-            //    glVertex3d(input_skeleton[k][0], input_skeleton[k][1], input_skeleton[k][2]);
-            //}
-            //glEnd();
+            // 默认的HumanSkeleton形状
+            srand(COLOR_SEED);
+            vector<Pinocchio::Vector3> input_skeleton = human.fGraph().verts;
+            glBegin(GL_LINES);
+            for (int j = 1; j < (int)prev.size(); ++j) {
+                int k = prev[j];
+                getColor();
+                glVertex3d(input_skeleton[j][0], input_skeleton[j][1], input_skeleton[j][2]);
+                glVertex3d(input_skeleton[k][0], input_skeleton[k][1], input_skeleton[k][2]);
+            }
+            glEnd();
 
+            // 显示motion->positions[motion->frameIdx];
             srand(COLOR_SEED);
             vector<Pinocchio::Vector3> original = meshes[i]->getSkeletonTracked();
             
@@ -319,6 +329,21 @@ void MyWindow::draw() {
                 glVertex3d(original[k][0], original[k][1], original[k][2]);
             }
             glEnd();
+
+            // 显示输入的RiggedOutEmbedding，匹配g_input_mesh_normalized，和输入的静态的mesh形状很接近
+            srand(COLOR_SEED);
+            vector<Pinocchio::Vector3> embedding = meshes[i]->getSkeletonRiggedOutEmbedding();
+
+            glBegin(GL_LINES);
+            for (int j = 1; j < (int)prev.size(); ++j) {
+                int k = prev[j];
+                getColor();
+                glVertex3d(embedding[j][0], embedding[j][1], embedding[j][2]);
+                glVertex3d(embedding[k][0], embedding[k][1], embedding[k][2]);
+            }
+            glEnd();
+
+            
         }
     }
 }
