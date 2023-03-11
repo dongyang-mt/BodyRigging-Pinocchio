@@ -262,6 +262,7 @@ void MyWindow::draw() {
     //}
 
     //draw meshes
+    // ÐÎ±äµÄmesh£¬Æ¥Åäavatar skeleton
     for(i = 0; i < (int)meshes.size(); ++i) {
         drawMesh(*(ms[i]), flatShading);
     }

@@ -122,6 +122,87 @@ void test_bvh11() {
     bvh.WriteBvhFile("./dance.bvh");
 }
 
+using namespace bvh11;
+
+void convert_motion_2_bvh11() {
+    Device* device = nullptr;
+    string motionPath = "data/skeleton.out";
+    Motion* motion = new Motion(device, motionPath);
+    vector<Pinocchio::Vector3> position = motion->positions[0];
+    vector<Rotation> rot = motion->rotations[0];
+
+    unordered_map<int, std::shared_ptr<Joint>> hierarchicalRotations;
+
+    std::shared_ptr<Joint> root_joint = std::make_shared<Joint>("root", nullptr);
+    Pinocchio::Vector3 offset = position[0];
+    root_joint->offset() = Eigen::Vector3d(offset[0], offset[1], offset[2]);
+    hierarchicalRotations.insert({0, root_joint});
+    root_joint->channels = { "Xposition", "Yposition", "Zposition", "Xrotation", "Yrotation", "Zrotation" };
+    for (int i = 1; i < rot.size(); i++)
+    {
+        std::shared_ptr<Joint> new_joint = std::make_shared<Joint>(std::to_string(rot[i].joint2), hierarchicalRotations[rot[i].joint1]);
+        Pinocchio::Vector3 offset = position[rot[i].joint2] - position[rot[i].joint1];
+        //Pinocchio::Vector3 offset = position[rot[i].joint2]; // error
+        new_joint->offset() = Eigen::Vector3d(offset[0], offset[1], offset[2]);
+        new_joint->has_end_site() = true;
+        new_joint->end_site() = Eigen::Vector3d(0, 0, 0);
+        new_joint->channels = { "Xrotation", "Yrotation", "Zrotation" };
+        hierarchicalRotations.insert({ rot[i].joint2, new_joint });
+        hierarchicalRotations[rot[i].joint1]->AddChild(new_joint);
+        hierarchicalRotations[rot[i].joint1]->has_end_site() = false;
+    }
+
+    Eigen::MatrixXd      motion_;
+    motion_.resize(motion->rotations.size(), 3 + 3*motion->rotations[0].size());
+
+    for (int frame_index = 0; frame_index < motion->rotations.size(); ++frame_index)
+    {
+        auto pos = motion->positions[frame_index];
+        motion_(frame_index, 0) = pos[0][0];
+        motion_(frame_index, 1) = pos[0][1];
+        motion_(frame_index, 2) = pos[0][2];
+        for (int channel_index = 0; channel_index < motion->rotations[frame_index].size(); ++channel_index)
+        {
+            auto r = motion->rotations[frame_index][channel_index].rotation;
+            Eigen::Quaterniond quart(r[3], r[0], r[1], r[2]);
+            Eigen::Vector3d eulerAngle = quart.matrix().eulerAngles(0, 1, 2);
+            motion_(frame_index, 3 * channel_index + 3) = eulerAngle[0];
+            motion_(frame_index, 3 * channel_index + 4) = eulerAngle[1];
+            motion_(frame_index, 3 * channel_index + 5) = eulerAngle[2];
+        }
+    }
+    const std::string bvh_file_path = "../bvh/resources/131_03.bvh";
+    // const std::string bvh_file_path = "./data/NBS-dance.bvh";
+
+    // Import data from a BVH file
+    bvh11::BvhObject bvh(bvh_file_path);
+    // Display basic info
+    std::cout << "#Channels       : " << bvh.channels().size() << std::endl;
+    std::cout << "#Frames         : " << bvh.frames() << std::endl;
+    std::cout << "Frame time      : " << bvh.frame_time() << std::endl;
+    std::cout << "Joint hierarchy : " << std::endl;
+
+    // Open the input file
+    const std::string file_path = "./data/skeleton_Pinocchio.bvh";
+    std::ofstream ofs(file_path);
+    assert(ofs.is_open() && "Failed to open the output file.");
+
+    // Hierarch
+    ofs << "HIERARCHY"
+        << "\n";
+    bvh.WriteJointSubHierarchyWithChannels(ofs, root_joint, 0);
+
+    // Motion
+    ofs << "MOTION"
+        << "\n";
+    ofs << "Frames: " << motion->rotations.size() << "\n";
+    ofs << "Frame Time: " << 1.0 / 30.0 << "\n";
+    // Eigen format
+    const Eigen::IOFormat motion_format(Eigen::StreamPrecision, Eigen::DontAlignCols, " ", "", "", "\n", "", "");
+
+    ofs << motion_.format(motion_format);
+}
+
 
 int main(int argc, char** argv) {
     if (argc != 6) {
@@ -151,6 +232,8 @@ int main(int argc, char** argv) {
 
     Debugging::setOutStream(cout);
 
+    convert_motion_2_bvh11();
+
     MyWindow * window = new MyWindow(meshPath);
     Mesh mesh(meshPath);
 
@@ -169,8 +252,6 @@ int main(int argc, char** argv) {
 
     DeformableMesh * defmesh;
     Motion * motion = new Motion(device, motionPath);
-    vector<vector<Pinocchio::Vector3>> positions = motion->positions;
-    vector<vector<Rotation>> rotation = motion->rotations;
 
     // if (!SKELETON_RIGGED) {
     if (true) {
