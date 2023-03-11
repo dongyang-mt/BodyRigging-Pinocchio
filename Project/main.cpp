@@ -232,7 +232,7 @@ int main(int argc, char** argv) {
 
     Debugging::setOutStream(cout);
 
-    convert_motion_2_bvh11();
+    //convert_motion_2_bvh11();
 
     MyWindow * window = new MyWindow(meshPath);
     Mesh mesh(meshPath);
@@ -254,7 +254,7 @@ int main(int argc, char** argv) {
     Motion * motion = new Motion(device, motionPath);
 
     // if (!SKELETON_RIGGED) {
-    if (true) {
+    if (false) {
         // defmesh = new DeformableMesh(mesh, skeleton, motion);
         std::string skelOutName = "data/human_skeleton_output.txt";
         std::string weightOutName = "data/human_skinning_weights_output.txt";

@@ -1,3 +1,6 @@
 [submodule "bvh"]
 	path = bvh
 	url = git@github.com:dongyang-mt/bvh11.git
+[submodule "json"]
+	path = json
+	url = https://github.com/nlohmann/json.git

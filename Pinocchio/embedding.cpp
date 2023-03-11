@@ -19,6 +19,32 @@
 #include "pinocchioApi.h"
 #include "debugging.h"
 
+#include <fstream>
+
+#include "json.hpp"
+using json = nlohmann::json;
+
+//void to_json(json& j, const Pinocchio::Vector3& p);
+//void from_json(const json& j, Pinocchio::Vector3& p);
+//void to_json(json& j, const Sphere& p);
+
+void to_json(json& j, const Pinocchio::Vector3& p) {
+    j = json::array({ p[0], p[1], p[2] });
+}
+
+void to_json(json& j, const PtGraph& p) {
+    j = json{ {"verts", p.verts}, {"edges", p.edges} };
+}
+
+void from_json(const json& j, Pinocchio::Vector3& p) {
+    j[0].get_to(p[0]);
+    j[1].get_to(p[1]);
+    j[2].get_to(p[2]);
+}
+void to_json(json& j, const Sphere& p) {
+    j = json{ {"radius", p.radius}, {"center", p.center} };
+}
+
 struct FP //information for penalty functions
 {
     FP(const PtGraph &inG, const Skeleton &inSk, const vector<Sphere> &inS)
@@ -131,6 +157,17 @@ double computePenalty(const vector<PenaltyFunction *> &penaltyFunctions,
 vector<int> discreteEmbed(const PtGraph &graph, const vector<Sphere> &spheres,
                           const Skeleton &skeleton, const vector<vector<int> > &possibilities)
 {
+    json js_graph = graph;
+    std::cout << js_graph.dump(4) << std::endl;
+    std::ofstream of_graph("of_graph.json");
+    of_graph << std::setw(4) << js_graph << std::endl;
+    json js_spheres = spheres;
+    std::cout << js_spheres.dump(4) << std::endl;
+    //json js_skeleton = skeleton;
+    //std::cout << js_skeleton.dump(4) << std::endl;
+    json js_possibilities = possibilities;
+    std::cout << js_possibilities.dump(4) << std::endl;
+
     int i, j;
     FP fp(graph, skeleton, spheres);
 
@@ -209,8 +246,11 @@ vector<int> discreteEmbed(const PtGraph &graph, const vector<Sphere> &spheres,
                 todo.push(next);
             }
         }
+
+        json js = skeleton.cPrev();
+        std::cout << js.dump(4) << std::endl;
     }
-    
+
     if(output.match.size() == 0)
     {
         Debugging::out() << "No Match" << endl;
