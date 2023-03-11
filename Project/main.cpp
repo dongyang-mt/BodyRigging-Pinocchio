@@ -181,6 +181,7 @@ int main(int argc, char** argv) {
         riggedOut.embedding.resize(skeleton.joints.size());
         vector<Vector<double, -1> > skinningWeights;
         load_PinocchioOutput(mesh, skeleton, riggedOut, skinningWeights, skelOutName, weightOutName);
+        // TODO: display riggedOut.embedding
         defmesh = new DeformableMesh(mesh, riggedOut.embedding, skinningWeights, motion);
     } else {
         // compute joint skin association and weights to bones attachment

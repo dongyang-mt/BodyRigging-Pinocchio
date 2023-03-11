@@ -12,13 +12,14 @@ Pinocchio::Vector3 transformToVec(const Eigen::Vector3f & vec) {
 
 Eigen::Vector3f getDirection(const Rotation & rot) {
     Eigen::Quaternionf quart(-rot.rotation[3], rot.rotation[0], rot.rotation[1], -rot.rotation[2]);
-
+    std::cout << quart << std::endl;
     return quart * Eigen::Vector3f(0, 1, 0);
 }
 
 Eigen::Quaternionf getRootRotation(const vector<Pinocchio::Vector3> & pose, const Rotation & rot) {
     Eigen::Vector3f directionRoot = getDirection(rot);
     Eigen::Quaternionf rootRotation = Eigen::Quaternionf::FromTwoVectors(Eigen::Vector3f(0, 1, 0), directionRoot);
+    cout << rootRotation << std::endl;
 
     Eigen::Vector3f parent = transformToEigen(pose[rot.joint1]);
     Eigen::Vector3f child = transformToEigen(pose[rot.joint2]);
@@ -29,12 +30,18 @@ Eigen::Quaternionf getRootRotation(const vector<Pinocchio::Vector3> & pose, cons
     return Eigen::Quaternionf::FromTwoVectors(directionPose, directionAvatar);
 }
 
+/*
+生成整个旋转后的骨骼
+*/
 map<int, Eigen::Transform<float, 3, Eigen::Affine>> DeformableMesh::computeTransforms() const {
     map<int, Eigen::Transform<float, 3, Eigen::Affine>> transforms;
 
+    // 单帧旋转向量
     const vector<Rotation> rotations = motion->getRelative();
 
+    // riggedOut.embedding
     vector<Pinocchio::Vector3> pose = match;
+    // 计算
     Eigen::Quaternionf rootRotation = getRootRotation(match, rotations[0]);
     Eigen::Vector3f root = transformToEigen(pose[0]);
 
@@ -76,7 +83,7 @@ void DeformableMesh::computeBasePose() {}
 void DeformableMesh::updateMesh() const {
     map<int, Eigen::Transform<float, 3, Eigen::Affine>> transforms = computeTransforms();
     const vector<Pinocchio::Vector3> & positions = motion->getSkeletonBones();
-
+    // TODO: Eigen::Vector3f(1.0, 1.0, -3.0)是什么意思？
     Eigen::Translation<float, 3> rootTranslation(transformToEigen(positions[0]).array() * Eigen::Vector3f(1.0, 1.0, -3.0).array());
     auto rotAxis = Eigen::AngleAxisf(M_PI, Eigen::Vector3f::UnitY());
 
