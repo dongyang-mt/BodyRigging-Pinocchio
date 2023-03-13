@@ -244,7 +244,7 @@ int main(int argc, char** argv) {
 
         mesh.normalizeBoundingBox();
     }
-
+    mesh.writeObj("data/human_normalized.obj");
     Device * device = nullptr;
     if (SKELETON_ANIMATION) {
         device = new Device();

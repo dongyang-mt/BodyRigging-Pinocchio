@@ -20,6 +20,11 @@
 #include "deriv.h"
 #include "debugging.h"
 
+#include <fstream>
+#include "json.hpp"
+using json = nlohmann::json;
+void to_json(json& j, const Pinocchio::Vector3& p);
+
 
 struct RP //information for refined embedding
 {
@@ -140,11 +145,14 @@ vector<Pinocchio::Vector3> refineEmbedding(TreeType *distanceField, const vector
 
     int sz = initialEmbedding.size();
     vector<Pinocchio::Vector3> fineEmbedding = initialEmbedding;
+    json json_fineEmbedding;
+    json_fineEmbedding["initialEmbedding"] = initialEmbedding;
+
     int i, k;
     for(k = 0; k < 10; ++k) {
         typedef Deriv<double, 6> DType;
         typedef Deriv<double, -1> DType1;
-        
+        //json_fineEmbedding["all"][k] = json::array();
         Debugging::out() << "E = " << computeFineError(fineEmbedding, &rp) << endl;
         
         for(int j = 0; j < 2; ++j) {
@@ -164,6 +172,7 @@ vector<Pinocchio::Vector3> refineEmbedding(TreeType *distanceField, const vector
                 dir[i][2] = -err.getDeriv(i * 3 + 2);
             }
             fineEmbedding = optimizeEmbedding1D(fineEmbedding, dir, &rp);
+            json_fineEmbedding["j_prev"][j] = fineEmbedding;
         }
         
         int cur;
@@ -207,9 +216,12 @@ vector<Pinocchio::Vector3> refineEmbedding(TreeType *distanceField, const vector
                 }
             }
             fineEmbedding = optimizeEmbedding1D(fineEmbedding, dir, &rp);
+
+            json_fineEmbedding["all"][k][cur] = fineEmbedding;
         }
     }
-    
+    std::ofstream file_fineEmbedding("fineEmbeddingAll.json");
+    file_fineEmbedding << std::setw(4) << json_fineEmbedding << std::endl;
     return fineEmbedding;
 }
 

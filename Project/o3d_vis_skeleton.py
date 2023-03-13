@@ -34,9 +34,8 @@ import json
 if __name__ == "__main__":
     vis = o3d.visualization.Visualizer()
     vis.create_window()
-    threshold = 0.05
-    icp_iteration = 100
     save_image = True
+
     filepath = R"C:\Users\dong.yang\code\automatic-rigging-animation\Project\fineEmbeddingAll.json"
     with open(filepath) as f:
         skeleton_vertices = json.load(f)
@@ -52,6 +51,11 @@ if __name__ == "__main__":
         if skeleton_maps["fPrev"][i] < 0:
             continue
         edges.append([i, skeleton_maps["fPrev"][i]])
+    obj_path = R"C:\Users\dong.yang\code\automatic-rigging-animation\Project\data\human_normalized.obj"
+    mesh = o3d.io.read_triangle_mesh(obj_path)
+    mesh.translate((0, 0, -0.5))
+    mesh.scale(1.62, center=(0.5, 0.5 , 0.5))
+    vis.add_geometry(mesh)
 
     pcd = o3d.geometry.PointCloud()
     # pcd.points = o3d.utility.Vector3dVector(verts)
@@ -65,17 +69,31 @@ if __name__ == "__main__":
     # pcd.paint_uniform_color(color)
     pcd.colors = o3d.utility.Vector3dVector(colors)
     vis.add_geometry(pcd)
+    radius = 0.03
+    sphere = o3d.geometry.TriangleMesh.create_sphere(radius).translate(verts[1])
+    sphere.paint_uniform_color(color)
+    vis.add_geometry(sphere)
 
     faces = []
-    for i in range(len(skeleton_vertices["all"])):
-        for j in range(len(skeleton_vertices["all"][0])):
+    for j in range(len(skeleton_vertices["all"][0])):
+        for i in range(len(skeleton_vertices["all"])):
             if not skeleton_vertices["all"][i][j]:
                 continue
             verts = skeleton_vertices["all"][i][j]
-            pcd.points = o3d.utility.Vector3dVector(verts)
+            points = pcd.points
+            points[j] = verts[j]
+            # pcd.points[j] = o3d.utility.Vector3dVector(verts[j])
+            pcd.points = points
+            sphere2 = o3d.geometry.TriangleMesh.create_sphere(radius).translate(verts[j])
+            sphere.vertices = sphere2.vertices
+            # vis.update_geometry(sphere.translate(verts[j]))
+            # sphere = sphere.translate(verts[j])
+            # sphere.paint_uniform_color(color)
+            vis.update_geometry(sphere)
             vis.update_geometry(pcd)
             vis.poll_events()
             vis.update_renderer()
             if save_image:
-                vis.capture_screen_image("temp_%04d.jpg" % i)
+                vis.capture_screen_image("temp_%02d_%02d.jpg" % (j, i))
+
     vis.destroy_window()
