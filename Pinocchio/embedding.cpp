@@ -157,16 +157,36 @@ double computePenalty(const vector<PenaltyFunction *> &penaltyFunctions,
 vector<int> discreteEmbed(const PtGraph &graph, const vector<Sphere> &spheres,
                           const Skeleton &skeleton, const vector<vector<int> > &possibilities)
 {
-    json js_graph = graph;
-    std::cout << js_graph.dump(4) << std::endl;
-    std::ofstream of_graph("of_graph.json");
-    of_graph << std::setw(4) << js_graph << std::endl;
-    json js_spheres = spheres;
-    std::cout << js_spheres.dump(4) << std::endl;
-    //json js_skeleton = skeleton;
-    //std::cout << js_skeleton.dump(4) << std::endl;
-    json js_possibilities = possibilities;
-    std::cout << js_possibilities.dump(4) << std::endl;
+    json json_graph = graph;
+    std::ofstream file_graph("graph_distanceField_spheres.json");
+    file_graph << std::setw(4) << json_graph << std::endl;
+    //std::cout << json_graph.dump(4) << std::endl;
+
+    json json_spheres = spheres;
+    std::ofstream file_spheres("spheres.json");
+    file_spheres << std::setw(4) << json_spheres << std::endl;
+    //std::cout << json_spheres.dump(4) << std::endl;
+    
+    json json_skeleton;
+    json_skeleton["fGraphV"] = skeleton.fGraph();
+    json_skeleton["fPrev"] = skeleton.fPrev();
+    json_skeleton["fSym"] = skeleton.fSym();
+
+    json_skeleton["cGraph"] = skeleton.cGraph();
+    json_skeleton["cPrev"] = skeleton.cPrev();
+    json_skeleton["cSym"] = skeleton.cSym();
+    json_skeleton["cFeet"] = skeleton.cFeet();
+    json_skeleton["cFat"] = skeleton.cFat();
+
+    json_skeleton["joints_names"] = skeleton.fGraph();
+    std::ofstream file_skeleton("skeleton.json");
+    file_skeleton << std::setw(4) << json_skeleton << std::endl;
+    //std::cout << json_skeleton.dump(4) << std::endl;
+
+    json json_possibilities = possibilities;
+    std::ofstream file_possibilities("possibilities.json");
+    file_possibilities << std::setw(4) << json_graph << std::endl;
+    //std::cout << json_possibilities.dump(4) << std::endl;
 
     int i, j;
     FP fp(graph, skeleton, spheres);

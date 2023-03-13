@@ -48,7 +48,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules />
     <CodeAnalysisRuleAssemblies />
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(FBX_DIR)\include</IncludePath>
+    <IncludePath>$(ProjectDir)/../json/single_include/nlohmann;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(FBX_DIR)\include</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(FBX_DIR)\lib\vs2015\x86\debug</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
