@@ -268,7 +268,7 @@ vector<int> discreteEmbed(const PtGraph &graph, const vector<Sphere> &spheres,
         }
 
         json js = skeleton.cPrev();
-        std::cout << js.dump(4) << std::endl;
+        // std::cout << js.dump(4) << std::endl;
     }
 
     if(output.match.size() == 0)

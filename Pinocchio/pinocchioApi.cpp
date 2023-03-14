@@ -22,6 +22,11 @@
 
 ostream *Debugging::outStream = new ofstream();
 
+#include <fstream>
+#include "json.hpp"
+using json = nlohmann::json;
+void to_json(json& j, const Pinocchio::Vector3& p);
+
 #ifdef _WIN32
 #include "windows.h"
 
@@ -48,6 +53,34 @@ int getSysMsecs()
 {
     static unsigned long startTime = getSysT();
     return getSysT() - startTime;
+}
+
+int save_json_PinocchioOutput(Mesh m, Skeleton skeleton, PinocchioOutput o, std::string skelOutName = "skeleton_output.json", std::string weightOutName = "skinning_weights_output.json")
+{
+    //output skeleton embedding
+    json json_embedding = o.embedding;
+    std::ofstream file_embedding(skelOutName);
+    file_embedding << std::setw(4) << json_embedding << std::endl;
+    //std::cout << json_embedding.dump(4) << std::endl;
+
+    //output attachment
+    std::vector<std::vector<double>> skinning_weights;
+    for (int i = 0; i < (int)m.vertices.size(); ++i) {
+        std::vector<double> joint_weights;
+        joint_weights.push_back(0); // add zero for root bones skinning weight
+        Vector<double, -1> v = o.attachment->getWeights(i);
+        for (int j = 0; j < v.size(); ++j) {
+            double d = floor(0.5 + v[j] * 10000.) / 10000.;
+            joint_weights.push_back(d);
+        }
+        skinning_weights.push_back(joint_weights);
+    }
+    json json_skinning_weights = skinning_weights;
+    std::ofstream file_skinning_weights(weightOutName);
+    file_skinning_weights << std::setw(4) << json_skinning_weights << std::endl;
+    //std::cout << json_skinning_weights.dump(4) << std::endl;
+
+    return 0;
 }
 
 PinocchioOutput autorig(const Skeleton &given, const Mesh &m)
@@ -111,6 +144,7 @@ PinocchioOutput autorig(const Skeleton &given, const Mesh &m)
     //attachment
     VisTester<TreeType> *tester = new VisTester<TreeType>(distanceField);
     out.attachment = new Attachment(newMesh, given, out.embedding, tester);
+    save_json_PinocchioOutput(m, given, out);
 
     //cleanup
     delete tester;
