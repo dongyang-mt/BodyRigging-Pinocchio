@@ -12,14 +12,14 @@ Pinocchio::Vector3 transformToVec(const Eigen::Vector3f & vec) {
 
 Eigen::Vector3f getDirection(const Rotation & rot) {
     Eigen::Quaternionf quart(-rot.rotation[3], rot.rotation[0], rot.rotation[1], -rot.rotation[2]);
-    std::cout << quart << std::endl;
+    //std::cout << quart << std::endl;
     return quart * Eigen::Vector3f(0, 1, 0);
 }
 
 Eigen::Quaternionf getRootRotation(const vector<Pinocchio::Vector3> & pose, const Rotation & rot) {
     Eigen::Vector3f directionRoot = getDirection(rot);
     Eigen::Quaternionf rootRotation = Eigen::Quaternionf::FromTwoVectors(Eigen::Vector3f(0, 1, 0), directionRoot);
-    cout << rootRotation << std::endl;
+    //cout << rootRotation << std::endl;
 
     Eigen::Vector3f parent = transformToEigen(pose[rot.joint1]);
     Eigen::Vector3f child = transformToEigen(pose[rot.joint2]);

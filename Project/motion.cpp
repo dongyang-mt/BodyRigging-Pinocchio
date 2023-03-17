@@ -92,8 +92,8 @@ void Motion::readRawFile(istream & stream) {
         this->rotations.push_back(rotations);
         this->hierarchicalRotations.push_back(hierarchicalRotations);
     }
+    /*
     Pinocchio::Vector4 zero_rotation = {0,0,0,1};
-
     for (int i = 0; i < this->rotations.size(); i++) {
         for (int g = 0; g < size; g++) {
             //this->rotations[i][g].rotation = zero_rotation;
@@ -106,6 +106,7 @@ void Motion::readRawFile(istream & stream) {
             }
         }
     }
+    */
 
     // translate and scale relative to avatar skeleton
     // TODO: need to check translation

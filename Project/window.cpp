@@ -168,6 +168,26 @@ void MyWindow::loadFileTexture(string filename, int material) {
     stbi_image_free(image);
 }
 
+void drawCoordinates(void)
+{
+    glLineWidth(3.0f);
+    glColor3f(1.0f, 0.0f, 0.0f); //画红色的x轴
+    glBegin(GL_LINES);
+    glVertex3f(0.0f, 0.0f, 0.0f);
+    glVertex3f(1.0f, 0.0f, 0.0f);
+    glEnd();
+    glColor3f(0.0, 1.0, 0.0); //画绿色的y轴
+    glBegin(GL_LINES);
+    glVertex3f(0.0f, 0.0f, 0.0f);
+    glVertex3f(0.0f, 1.0f, 0.0f);
+    glEnd();
+    glColor3f(0.0, 0.0, 1.0); //画蓝色的z轴
+    glBegin(GL_LINES);
+    glVertex3f(0.0f, 0.0f, 0.0f);
+    glVertex3f(0.0f, 0.0f, 1.0f);
+    glEnd();
+}
+
 void MyWindow::draw() {
     int i;
     if (!valid()) {
@@ -267,11 +287,11 @@ void MyWindow::draw() {
         drawMesh(*(ms[i]), flatShading);
     }
 
-    // 输入的静态mesh，非常大
-    drawMesh(*g_input_mesh, flatShading);
+    //// 输入的静态mesh，非常大
+    //drawMesh(*g_input_mesh, flatShading);
 
-    // 输入归一化的静态mesh，匹配RiggedOutEmbedding
-    drawMesh(*g_input_mesh_normalized, flatShading);
+    //// 输入归一化的静态mesh，匹配RiggedOutEmbedding
+    //drawMesh(*g_input_mesh_normalized, flatShading);
 
     //draw lines
     glDisable(GL_DEPTH_TEST);
@@ -284,6 +304,7 @@ void MyWindow::draw() {
         glVertex3d(lines[i].p2[0], lines[i].p2[1], lines[i].p2[2]);
         glEnd();
     }
+    drawCoordinates();
 
     if(skeleton) {
         glLineWidth(5);
@@ -296,7 +317,7 @@ void MyWindow::draw() {
 
             const vector<int> &prev = human.fPrev();
 
-            // 形变后的skeleton，和形变后的mesh完全匹配
+            //// 形变后的skeleton，和形变后的mesh完全匹配
             glBegin(GL_LINES);
             for (int j = 1; j < (int)prev.size(); ++j) {
                 int k = prev[j];
@@ -306,17 +327,17 @@ void MyWindow::draw() {
             }
             glEnd();
 
-            // 默认的HumanSkeleton形状
-            srand(COLOR_SEED);
-            vector<Pinocchio::Vector3> input_skeleton = human.fGraph().verts;
-            glBegin(GL_LINES);
-            for (int j = 1; j < (int)prev.size(); ++j) {
-                int k = prev[j];
-                getColor();
-                glVertex3d(input_skeleton[j][0], input_skeleton[j][1], input_skeleton[j][2]);
-                glVertex3d(input_skeleton[k][0], input_skeleton[k][1], input_skeleton[k][2]);
-            }
-            glEnd();
+            //// 默认的HumanSkeleton形状
+            //srand(COLOR_SEED);
+            //vector<Pinocchio::Vector3> input_skeleton = human.fGraph().verts;
+            //glBegin(GL_LINES);
+            //for (int j = 1; j < (int)prev.size(); ++j) {
+            //    int k = prev[j];
+            //    getColor();
+            //    glVertex3d(input_skeleton[j][0], input_skeleton[j][1], input_skeleton[j][2]);
+            //    glVertex3d(input_skeleton[k][0], input_skeleton[k][1], input_skeleton[k][2]);
+            //}
+            //glEnd();
 
             // 显示motion->positions[motion->frameIdx];
             srand(COLOR_SEED);
@@ -326,23 +347,24 @@ void MyWindow::draw() {
             for(int j = 1; j < (int) prev.size(); ++j) {
                 int k = prev[j];
                 getColor();
-                glVertex3d(original[j][0], original[j][1], original[j][2]);
-                glVertex3d(original[k][0], original[k][1], original[k][2]);
+                double delta_x = 1.5;
+                glVertex3d(original[j][0]+ delta_x, original[j][1], original[j][2]);
+                glVertex3d(original[k][0]+ delta_x, original[k][1], original[k][2]);
             }
             glEnd();
 
             // 显示输入的RiggedOutEmbedding，匹配g_input_mesh_normalized，和输入的静态的mesh形状很接近
-            srand(COLOR_SEED);
-            vector<Pinocchio::Vector3> embedding = meshes[i]->getSkeletonRiggedOutEmbedding();
+            //srand(COLOR_SEED);
+            //vector<Pinocchio::Vector3> embedding = meshes[i]->getSkeletonRiggedOutEmbedding();
 
-            glBegin(GL_LINES);
-            for (int j = 1; j < (int)prev.size(); ++j) {
-                int k = prev[j];
-                getColor();
-                glVertex3d(embedding[j][0], embedding[j][1], embedding[j][2]);
-                glVertex3d(embedding[k][0], embedding[k][1], embedding[k][2]);
-            }
-            glEnd();
+            //glBegin(GL_LINES);
+            //for (int j = 1; j < (int)prev.size(); ++j) {
+            //    int k = prev[j];
+            //    getColor();
+            //    glVertex3d(embedding[j][0], embedding[j][1], embedding[j][2]);
+            //    glVertex3d(embedding[k][0], embedding[k][1], embedding[k][2]);
+            //}
+            //glEnd();
 
             
         }

@@ -64,7 +64,7 @@ int save_PinocchioOutput(Mesh m, Skeleton skeleton, PinocchioOutput o, std::stri
     return 0;
 }
 
-int load_PinocchioOutput(Mesh m, Skeleton skeleton, PinocchioOutput &o, vector<Vector<double, -1> >& weights, std::string skelOutName = "skeleton_output.txt", std::string weightOutName = "skinning_weights_output.txt") {
+int load_PinocchioOutput(Mesh m, Skeleton skeleton, PinocchioOutput &o, vector<Vector<double, -1> >& weights, std::string skelOutName = "skeleton.txt", std::string weightOutName = "skinning_weights.txt") {
     int i = 0;
 
     //output skeleton embedding
@@ -85,8 +85,6 @@ int load_PinocchioOutput(Mesh m, Skeleton skeleton, PinocchioOutput &o, vector<V
         return -1;
     }
 
-    cout << "Reading " << weightOutName << endl;
-
     int nv = m.vertices.size();
     weights.resize(nv);
 
@@ -102,18 +100,6 @@ int load_PinocchioOutput(Mesh m, Skeleton skeleton, PinocchioOutput &o, vector<V
         }
     }
 
-    //output skinning weight for check
-    std::ofstream astrm("data/human_skinning_weight_for_check.txt");
-
-    for (i = 0; i < (int)m.vertices.size(); ++i) {
-        Vector<double, -1> v = weights[i];
-        astrm << 0.0; // add zero for root bones skinning weight
-        for (int j = 0; j < v.size(); ++j) {
-            double d = floor(0.5 + v[j] * 10000.) / 10000.;
-            astrm << " " << d;
-        }
-        astrm << endl;
-    }
     return 0;
 }
 
@@ -322,7 +308,8 @@ int main(int argc, char** argv) {
 
         mesh.normalizeBoundingBox();
     }
-    mesh.writeObj("data/ZiJian_normalized.obj");
+    mesh.writeObj(meshPath + "_normalized.obj");
+
     Device * device = nullptr;
     if (SKELETON_ANIMATION) {
         device = new Device();
@@ -331,11 +318,12 @@ int main(int argc, char** argv) {
     DeformableMesh * defmesh;
     Motion * motion = new Motion(device, motionPath);
 
+    std::string skelOutName = meshPath + "_skeleton.txt";
+    std::string weightOutName = meshPath + "_skinning_weights.txt";
+
     // if (!SKELETON_RIGGED) {
-    if (true) {
+    if (false) {
         // defmesh = new DeformableMesh(mesh, skeleton, motion);
-        std::string skelOutName = "data/human_skeleton_output.txt";
-        std::string weightOutName = "data/human_skinning_weights_output.txt";
         PinocchioOutput riggedOut;
         riggedOut.embedding.resize(skeleton.joints.size());
         vector<Vector<double, -1> > skinningWeights;
@@ -345,7 +333,7 @@ int main(int argc, char** argv) {
     } else {
         // compute joint skin association and weights to bones attachment
         PinocchioOutput riggedOut = autorig(skeleton, mesh);
-        save_PinocchioOutput(mesh, skeleton, riggedOut);
+        save_PinocchioOutput(mesh, skeleton, riggedOut, skelOutName, weightOutName);
         defmesh = new DeformableMesh(mesh, skeleton, riggedOut.embedding, *(riggedOut.attachment), motion);
     }
 
