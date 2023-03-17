@@ -298,7 +298,7 @@ int main(int argc, char** argv) {
     //convert_skeleton_2_bvh11();
     //convert_motion_2_bvh11();
 
-    MyWindow * window = new MyWindow(meshPath);
+    //MyWindow * window = new MyWindow(meshPath);
     Mesh mesh(meshPath);
 
     // Skeleton skeleton = FileSkeleton(skeletonPath);
@@ -337,9 +337,10 @@ int main(int argc, char** argv) {
         defmesh = new DeformableMesh(mesh, skeleton, riggedOut.embedding, *(riggedOut.attachment), motion);
     }
 
-    defmesh->rigged = SKELETON_RIGGED;
-    window->addMesh(defmesh);
-    window->show();
+    //defmesh->rigged = SKELETON_RIGGED;
+    //window->addMesh(defmesh);
+    //window->show();
 
-    return Fl::run();
+    //return Fl::run();
+    return 0;
 }
